@@ -1,0 +1,205 @@
+#:kivy 2.1.0
+#:import utils kivy.utils
+
+<TaskItem>:
+    canvas.before:
+        Color:
+            rgba: (0.95, 0.95, 0.95, 1) if self.completed else (1, 1, 1, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [15, 15, 15, 15]
+    size_hint_y: None
+    height: dp(80)
+    padding: dp(10)
+    spacing: dp(10)
+    orientation: 'horizontal'
+    
+    CheckBox:
+        id: checkbox
+        size_hint_x: None
+        width: dp(40)
+        active: root.completed
+        on_active: root.toggle_completed(*args)
+    
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(5), dp(10)
+        Label:
+            id: task_label
+            text: root.description
+            color: 0, 0, 0, 1
+            font_size: '16sp'
+            font_name: 'DroidSansFallback'  # 使用支援中文的字體
+            text_size: self.width, None
+            halign: 'left'
+            valign: 'middle'
+            strikethrough: root.completed
+            size_hint_y: None
+            height: self.texture_size[1]
+
+<MainScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        canvas.before:
+            Color:
+                rgba: utils.get_color_from_hex('#F5F7FA')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        
+        # 頂部導航欄
+        BoxLayout:
+            size_hint_y: None
+            height: dp(70)
+            padding: dp(20), dp(10)
+            canvas.before:
+                Color:
+                    rgba: utils.get_color_from_hex('#4F7FFF')
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            
+            Label:
+                text: '待辦事項'
+                color: 1, 1, 1, 1
+                font_size: '22sp'
+                font_name: 'DroidSansFallback'  # 使用支援中文的字體
+                size_hint_x: 0.7
+                text_size: self.size
+                halign: 'left'
+                valign: 'middle'
+            
+            Button:
+                size_hint_x: None
+                width: dp(50)
+                background_normal: ''
+                background_color: 1, 1, 1, 1
+                on_release: root.show_add_task_dialog()
+                
+                BoxLayout:
+                    pos: self.parent.pos
+                    size: self.parent.size
+                    padding: dp(15)
+                    
+                    # 使用 Canvas 直接繪製加號
+                    canvas:
+                        Color:
+                            rgba: utils.get_color_from_hex('#4F7FFF')
+                        Line:
+                            width: 2
+                            points: [self.center_x - 10, self.center_y, self.center_x + 10, self.center_y]
+                        Line:
+                            width: 2
+                            points: [self.center_x, self.center_y - 10, self.center_x, self.center_y + 10]
+        
+        # 任務列表區域
+        ScrollView:
+            do_scroll_x: False
+            
+            BoxLayout:
+                id: tasks_container
+                orientation: 'vertical'
+                padding: dp(20)
+                spacing: dp(15)
+                size_hint_y: None
+                height: self.minimum_height
+                
+                # 未完成任務區塊
+                BoxLayout:
+                    id: incomplete_tasks_container
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: dp(10)
+                    
+                    Label:
+                        text: '待完成'
+                        color: 0, 0, 0, 1
+                        font_size: '18sp'
+                        font_name: 'DroidSansFallback'  # 使用支援中文的字體
+                        size_hint_y: None
+                        height: dp(30)
+                        text_size: self.size
+                        halign: 'left'
+                        valign: 'middle'
+                    
+                    # 這裡會動態添加未完成任務
+                
+                # 間隔
+                Widget:
+                    size_hint_y: None
+                    height: dp(20)
+                
+                # 已完成任務區塊
+                BoxLayout:
+                    id: completed_tasks_container
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: dp(10)
+                    
+                    Label:
+                        text: '已完成'
+                        color: 0, 0, 0, 1
+                        font_size: '18sp'
+                        font_name: 'DroidSansFallback'  # 使用支援中文的字體
+                        size_hint_y: None
+                        height: dp(30)
+                        text_size: self.size
+                        halign: 'left'
+                        valign: 'middle'
+                    
+                    # 這裡會動態添加已完成任務
+
+<AddTaskDialog>:
+    title: '新增任務'
+    size_hint: 0.9, None
+    height: dp(250)
+    auto_dismiss: False
+    
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(20)
+        spacing: dp(20)
+        
+        Label:
+            text: '任務描述'
+            color: 0, 0, 0, 1
+            font_name: 'DroidSansFallback'  # 使用支援中文的字體
+            size_hint_y: None
+            height: dp(30)
+            text_size: self.size
+            halign: 'left'
+            valign: 'middle'
+        
+        TextInput:
+            id: task_input
+            hint_text: '請輸入任務描述...'
+            font_name: 'DroidSansFallback'  # 使用支援中文的字體
+            multiline: True
+            size_hint_y: None
+            height: dp(100)
+            padding: dp(10)
+            font_size: '16sp'
+        
+        BoxLayout:
+            size_hint_y: None
+            height: dp(50)
+            spacing: dp(10)
+            
+            Button:
+                text: '取消'
+                font_name: 'DroidSansFallback'  # 使用支援中文的字體
+                on_release: root.dismiss()
+                background_normal: ''
+                background_color: 0.9, 0.9, 0.9, 1
+                color: 0, 0, 0, 1
+            
+            Button:
+                text: '確認'
+                font_name: 'DroidSansFallback'  # 使用支援中文的字體
+                on_release: root.add_task()
+                background_normal: ''
+                background_color: utils.get_color_from_hex('#4F7FFF')
+                color: 1, 1, 1, 1
